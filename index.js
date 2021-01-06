@@ -3,8 +3,9 @@ const app = express(); // express module을 만든다
 const port = 5000;
 const cookeParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const { User } = require('./models/User');
 const config = require('./config/key');
+const { auth } = require('./middleware/auth');
+const { User } = require('./models/User');
 
 app.use(cookeParser());
 //apllication/x-www-form-urlencoded => 분석해서 가져오는 것
@@ -27,7 +28,7 @@ app.get('/', (req, res) => {
   res.send('이번 주까지 마무리!');
 });
 
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
   // 회원기입 시, 필요한 정보를 client에서 가져오면
   // 그것들을 데이터 베이스에 넣어준다.
   const user = new User(req.body);
@@ -40,7 +41,7 @@ app.post('/register', (req, res) => {
   });
 });
 
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
   User.findOne({ email: req.body.email }, (err, user) => {
     if (!user) {
       return res.json({
@@ -60,6 +61,18 @@ app.post('/login', (req, res) => {
       // 토큰을 저장한다.
       res.cookie('x_auth', user.token).status(200).json({ loginSuccess: true, userId: user._id });
     });
+  });
+});
+
+app.get('/api/users/auth', auth, (req, res) => {
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role == 0 ? false : true,
+    isAuth: true,
+    email: req.user.emaail,
+    lastname: req.user.lastname,
+    role: req.user.role,
+    image: req.user.image,
   });
 });
 
