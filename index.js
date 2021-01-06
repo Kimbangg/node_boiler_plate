@@ -3,6 +3,7 @@ const app = express(); // express module을 만든다
 const port = 5000;
 const bodyParser = require('body-parser');
 const { User } = require('./models/User');
+const config = require('./config/key');
 
 //apllication/x-www-form-urlencoded => 분석해서 가져오는 것
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -11,7 +12,7 @@ app.use(bodyParser.json());
 
 const mongoose = require('mongoose');
 mongoose
-  .connect('mongodb+srv://Bang:ehd123@boilerplate.yr5lv.mongodb.net/<dbname>?retryWrites=true&w=majority', {
+  .connect(config.mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
